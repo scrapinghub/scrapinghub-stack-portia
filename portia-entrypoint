@@ -11,38 +11,24 @@ BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
 BUNDLE_URL = 'api/projects/{project}/download/{spider}'
 
-# TODO remove this when portia entrypoint is ready
-TEST_APIKEY = 'test'
 
 def download_portia_bundle():
     """ Download Portia bundle to project directory """
     portia_url = os.environ['SHUB_PORTIAURL']
     jobkey = os.environ['SHUB_JOBKEY']
-    project_id = jobkey.split('/')[0]
+    jobauth = os.environ['SHUB_JOBAUTH']
     spider_id = os.environ.get('SCRAPY_SPIDER', '')
+    project_id = jobkey.split('/')[0]
 
-    #jobauth = os.environ['SHUB_JOBAUTH']
-    #bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
-    #headers = {"Authorization": "Bearer {}".format(jobauth),
-    #           "X-Job-Id": jobkey}
-    #bundle_req = requests.get(
-    #    urljoin(portia_url, bundle_url),
-    #    headers=headers,
-    #    stream=True,
-    #    timeout=300,
-    #)
-
-    # TODO replace it with the version above when entrypoint is ready
-    cmd_args = [project_id]
-    if spider_id:
-        cmd_args.append(spider_id)
-    bundle_req = requests.post(
-        urljoin(portia_url, 'projects'),
-        data=json.dumps({"cmd": "download", "args": cmd_args}),
-        auth=('APIKEY', TEST_APIKEY),
+    bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
+    headers = {"Authorization": "Bearer {}".format(jobauth),
+               "X-Job-Id": jobkey}
+    bundle_req = requests.get(
+        urljoin(portia_url, bundle_url),
+        headers=headers,
         stream=True,
-        timeout=300)
-    # ------------------------------------------------
+        timeout=300,
+    )
     bundle_req.raise_for_status()
     with open(BUNDLE_PATH, 'wb') as outfile:
         shutil.copyfileobj(StringIO(bundle_req.content), outfile)
