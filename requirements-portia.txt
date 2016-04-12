@@ -1,1 +1,2 @@
+requests==2.9.1
 slybot==0.12.1

@@ -1,0 +1,53 @@
+import os
+import sys
+import shutil
+import requests
+from urlparse import urljoin
+from cStringIO import StringIO
+
+BUNDLE_DIR = '/tmp/portia/'
+BUNDLE_URL = 'api/projects/{project}/download/{spider}'
+BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
+
+
+def download_portia_bundle():
+    """ Download Portia bundle to project directory """
+    portia_url = os.environ['SHUB_PORTIAURL']
+    jobkey = os.environ['SHUB_JOBKEY']
+    jobauth = os.environ['SHUB_JOBAUTH']
+
+    project_id, spider_id = jobkey.split('/')[:2]
+    bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
+    headers = {"Authorization": "Bearer {}".format(jobauth),
+               "X-Job-Id": jobkey}
+    bundle_req = requests.get(
+        urljoin(portia_url, bundle_url),
+        headers=headers,
+        stream=True,
+        timeout=300,
+    )
+    bundle_req.raise_for_status()
+    if not os.path.exists(BUNDLE_DIR):
+        os.makedirs(BUNDLE_DIR)
+    with open(BUNDLE_PATH, 'wb') as outfile:
+        shutil.copyfileobj(StringIO(bundle_req.content), outfile)
+
+
+def update_environment_for_portia():
+    """ Modify current environment for Portia """
+    env = os.environ.copy()
+    env['PROJECT_ZIPFILE'] = BUNDLE_PATH
+    return env
+
+
+def main():
+    download_portia_bundle()
+    env = update_environment_for_portia()
+    if len(sys.argv) > 1:
+        os.execve(sys.argv[1], sys.argv[1:], env=env)
+    else:
+        os.execve('/bin/bash', ['bash'], env=env)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
