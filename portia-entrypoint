@@ -5,6 +5,7 @@ import json
 import shutil
 import requests
 from retrying import retry
+from itertools import count
 from urlparse import urljoin
 from cStringIO import StringIO
 from sh_scrapy.env import decode_uri
@@ -18,11 +19,6 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.ConnectionError,
     requests.exceptions.HTTPError,
 )
-# Exponential retry timeouts: min(2^n * multiplier, max)
-# [60s, 240s, 540s, 960s, 1200s] = 3000s
-DOWNLOAD_RETRY_ATTEMPTS = 6
-DOWNLOAD_RETRY_EXP_MULTIPLIER = 60 * 1000
-DOWNLOAD_RETRY_EXP_MAX = 1200 * 1000
 
 
 def prepare_portia_bundle():
@@ -50,10 +46,22 @@ def _retry_on_requests_error(exception):
     return isinstance(exception, DOWNLOAD_RETRY_EXCEPTIONS)
 
 
+def backoffretry_delays(maxwait=3600, maxdelay=600, mindelay=0):
+    w, delays = 0, []
+    for x in count():
+        s = max(min(x ** 2, maxdelay), mindelay)
+        w += s
+        if w > maxwait:
+            break
+        delays.append(s)
+    return delays
+
+delays = backoffretry_delays(maxwait=1200, mindelay=60)
+
+
 @retry(retry_on_exception=_retry_on_requests_error,
-       stop_max_attempt_number=DOWNLOAD_RETRY_ATTEMPTS,
-       wait_exponential_multiplier=DOWNLOAD_RETRY_EXP_MULTIPLIER,
-       wait_exponential_max=DOWNLOAD_RETRY_EXP_MAX)
+       wait_func=lambda n, _: delays[n],
+       stop_func=lambda n, _: len(delays) <= n + 1)
 def download_portia_bundle(bundle_url, jobkey, jobauth):
     """Download Portia bundle from API using Bearer auth."""
     headers = {"Authorization": "Bearer {}".format(jobauth),
