@@ -9,7 +9,7 @@ from cStringIO import StringIO
 
 BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
-BUNDLE_URL = 'api/projects/{project}/download/{spider}'
+BUNDLE_URL = 'api/projects/{project}/download/{spider}/'
 
 
 def download_portia_bundle():
@@ -24,7 +24,7 @@ def download_portia_bundle():
     headers = {"Authorization": "Bearer {}".format(jobauth),
                "X-Job-Id": jobkey}
     bundle_req = requests.get(
-        urljoin(portia_url, bundle_url),
+        urljoin(portia_url, bundle_url).strip('/'),
         headers=headers,
         stream=True,
         timeout=300,
