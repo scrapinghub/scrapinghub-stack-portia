@@ -13,16 +13,16 @@ BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
 BUNDLE_URL = 'api/projects/{project}/download/{spider}/'
 
-CHECK_RETRY_EXCEPTIONS = (
+DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.Timeout,
     requests.exceptions.ConnectionError,
     requests.exceptions.HTTPError,
 )
 # Exponential retry timeouts: min(2^n * multiplier, max)
 # [2s, 4s, 8s, 16s, 30s] = 60s
-CHECK_RETRY_ATTEMPTS = 6
-CHECK_RETRY_EXP_MULTIPLIER = 1000
-CHECK_RETRY_EXP_MAX = 30000
+DOWNLOAD_RETRY_ATTEMPTS = 6
+DOWNLOAD_RETRY_EXP_MULTIPLIER = 1000
+DOWNLOAD_RETRY_EXP_MAX = 30000
 
 
 def prepare_portia_bundle():
@@ -47,13 +47,13 @@ def extract_portia_url():
 
 
 def _retry_on_requests_error(exception):
-    return isinstance(exception, CHECK_RETRY_EXCEPTIONS)
+    return isinstance(exception, DOWNLOAD_RETRY_EXCEPTIONS)
 
 
 @retry(retry_on_exception=_retry_on_requests_error,
-       stop_max_attempt_number=CHECK_RETRY_ATTEMPTS,
-       wait_exponential_multiplier=CHECK_RETRY_EXP_MULTIPLIER,
-       wait_exponential_max=CHECK_RETRY_EXP_MAX)
+       stop_max_attempt_number=DOWNLOAD_RETRY_ATTEMPTS,
+       wait_exponential_multiplier=DOWNLOAD_RETRY_EXP_MULTIPLIER,
+       wait_exponential_max=DOWNLOAD_RETRY_EXP_MAX)
 def download_portia_bundle(bundle_url, jobkey, jobauth):
     """Download Portia bundle from API using Bearer auth."""
     headers = {"Authorization": "Bearer {}".format(jobauth),
