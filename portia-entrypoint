@@ -6,36 +6,51 @@ import shutil
 import requests
 from urlparse import urljoin
 from cStringIO import StringIO
+from sh_scrapy.env import decode_uri
 
 BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
 BUNDLE_URL = 'api/projects/{project}/download/{spider}/'
 
 
-def download_portia_bundle():
+def prepare_portia_bundle():
     """ Download Portia bundle to project directory """
-    portia_url = os.environ['SHUB_PORTIAURL']
+    portia_url = extract_portia_url()
     jobkey = os.environ['SHUB_JOBKEY']
     jobauth = os.environ['SHUB_JOBAUTH']
-    spider_id = os.environ.get('SCRAPY_SPIDER', '')
-    project_id = jobkey.split('/')[0]
+    project_id, spider_id = jobkey.split('/')[:2]
 
     bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
+    bundle_full_url = urljoin(portia_url, bundle_url).strip('/'),
+    bundle_data = download_portia_bundle(bundle_full_url, jobkey, jobauth)
+
+    with open(BUNDLE_PATH, 'wb') as outfile:
+        shutil.copyfileobj(StringIO(bundle_data), outfile)
+
+
+def extract_portia_url():
+    """Extract Portia URL from JOB_DATA env variable."""
+    job_data = decode_uri(envvar='JOB_DATA')
+    return job_data['portia_url']
+
+
+# TODO add retries
+def download_portia_bundle(bundle_url, jobkey, jobauth):
+    """Download Portia bundle from API using Bearer auth."""
     headers = {"Authorization": "Bearer {}".format(jobauth),
                "X-Job-Id": jobkey}
     bundle_req = requests.get(
-        urljoin(portia_url, bundle_url).strip('/'),
+        url=bundle_url,
         headers=headers,
         stream=True,
         timeout=300,
     )
     bundle_req.raise_for_status()
-    with open(BUNDLE_PATH, 'wb') as outfile:
-        shutil.copyfileobj(StringIO(bundle_req.content), outfile)
+    return bundle_req.content
 
 
 def update_environment_for_portia():
-    """ Modify current environment for Portia """
+    """Modify current environment for Portia."""
     env = os.environ.copy()
     env['PROJECT_ZIPFILE'] = BUNDLE_PATH
     env['PROJECT_DIR'] = BUNDLE_DIR
@@ -43,7 +58,7 @@ def update_environment_for_portia():
 
 
 def main():
-    download_portia_bundle()
+    prepare_portia_bundle()
     env = update_environment_for_portia()
     if len(sys.argv) > 1:
         os.execvpe(sys.argv[1], sys.argv[1:], env)
