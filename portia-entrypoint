@@ -13,7 +13,6 @@ BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
 BUNDLE_URL = 'api/projects/{project}/download/{spider}/'
 
-
 CHECK_RETRY_EXCEPTIONS = (
     requests.exceptions.Timeout,
     requests.exceptions.ConnectionError,
@@ -24,7 +23,6 @@ CHECK_RETRY_EXCEPTIONS = (
 CHECK_RETRY_ATTEMPTS = 6
 CHECK_RETRY_EXP_MULTIPLIER = 1000
 CHECK_RETRY_EXP_MAX = 30000
-
 
 
 def prepare_portia_bundle():
