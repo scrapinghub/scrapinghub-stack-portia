@@ -19,10 +19,10 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.HTTPError,
 )
 # Exponential retry timeouts: min(2^n * multiplier, max)
-# [2s, 4s, 8s, 16s, 30s] = 60s
+# [60s, 240s, 540s, 960s, 1200s] = 3000s
 DOWNLOAD_RETRY_ATTEMPTS = 6
-DOWNLOAD_RETRY_EXP_MULTIPLIER = 1000
-DOWNLOAD_RETRY_EXP_MAX = 30000
+DOWNLOAD_RETRY_EXP_MULTIPLIER = 60 * 1000
+DOWNLOAD_RETRY_EXP_MAX = 1200 * 1000
 
 
 def prepare_portia_bundle():
