@@ -1,4 +1,4 @@
-FROM scrapinghub/kumo-stack-hworker:v1.0.3
+FROM scrapinghub/kumo-stack-hworker:latest
 COPY requirements-portia.txt /
 RUN pip install --no-cache-dir -r requirements-portia.txt
 ADD portia-entrypoint /usr/local/sbin/
