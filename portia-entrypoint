@@ -23,9 +23,8 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
 
 def prepare_portia_bundle():
     """ Download Portia bundle to project directory """
-    portia_url = extract_portia_url()
+    portia_url, jobauth = extract_portia_data()
     jobkey = os.environ['SHUB_JOBKEY']
-    jobauth = os.environ['SHUB_JOBAUTH']
     project_id, spider_id = jobkey.split('/')[:2]
 
     bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
@@ -36,10 +35,10 @@ def prepare_portia_bundle():
         shutil.copyfileobj(StringIO(bundle_data), outfile)
 
 
-def extract_portia_url():
+def extract_portia_data():
     """Extract Portia URL from JOB_DATA env variable."""
     job_data = decode_uri(envvar='JOB_DATA')
-    return job_data['portia_url']
+    return job_data['portia_url'], job_data['auth']
 
 
 def _retry_on_requests_error(exception):
