@@ -28,7 +28,7 @@ def prepare_portia_bundle():
     project_id, spider_id = jobkey.split('/')[:2]
 
     bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
-    bundle_full_url = urljoin(portia_url, bundle_url).strip('/'),
+    bundle_full_url = urljoin(portia_url, bundle_url).strip('/')
     bundle_data = download_portia_bundle(bundle_full_url, jobkey, jobauth)
 
     with open(BUNDLE_PATH, 'wb') as outfile:
