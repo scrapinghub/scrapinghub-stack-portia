@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+import os
+import sys
+import glob
+import zipimport
+import pkg_resources
+from zipfile import ZipFile
+from setuptools.archive_util import unpack_archive
+
+
+DEFAULT_ENV = {'TERM': 'xterm'}
+DEFAULT_EGGS_PATH = '/app/'
+DEFAULT_MAIN_EGG_NAME = '__main__.egg'
+UNPACKED_EGGS_PATH = '/tmp/unpacked-eggs/'
+
+
+def load_eggs(eggs_path, main_egg_name):
+    pypath, main_egg_path = os.environ.get('PYTHONPATH', ''), None
+    for egg_path in glob.glob("%s/*.egg" % eggs_path):
+        if is_zipunsafe(egg_path):
+            egg_path = unpack_egg(egg_path)
+        sys.path.insert(0, egg_path)
+        pypath += '%s:' % egg_path
+        if os.path.basename(egg_path) == main_egg_name:
+            main_egg_path = egg_path
+    env = {'PYTHONPATH': pypath}
+    if not main_egg_path:
+        print('Project egg is not found')
+        return env
+    settings_module = activate_main_egg(main_egg_path)
+    if not settings_module:
+        print('Project distribution is not found')
+        return env
+    env['SCRAPY_SETTINGS_MODULE'] = settings_module
+    return env
+
+
+def activate_main_egg(eggpath):
+    """Activate a Scrapy egg file. This is meant to be used from egg runners
+    to activate a Scrapy egg file. Don't use it from other code as it may
+    leave unwanted side effects. Taken from ScrapyD implementation."""
+    try:
+        d = pkg_resources.find_distributions(eggpath).next()
+    except StopIteration:
+        raise ValueError("Unknown or corrupt egg")
+    d.activate()
+    return d.get_entry_info('scrapy', 'settings').module_name
+
+
+def is_zipunsafe(eggpath):
+    """ Get an egg' zip unsafe flag """
+    dist = pkg_resources.EggMetadata(zipimport.zipimporter(eggpath))
+    return dist.has_metadata('not-zip-safe')
+
+
+def unpack_egg(eggpath):
+    newpath = os.path.join(UNPACKED_EGGS_PATH, os.path.basename(eggpath))
+    unpack_archive(eggpath, newpath)
+    # would be better to remove it, but we haven't permissions
+    # os.remove(eggpath)
+    return newpath
+
+
+def main():
+    os.environ.update(DEFAULT_ENV)
+    eggs_env = load_eggs(DEFAULT_EGGS_PATH, DEFAULT_MAIN_EGG_NAME)
+    os.environ.update(eggs_env)
+
+    cmd = os.path.basename(sys.argv[0])
+    if cmd == 'scrapy-list':
+        os.execvp('scrapy', ['scrapy', 'list'])
+    elif cmd == 'start-crawl':
+        # Call sh_scrapy's start-crawl
+        # Replacing the process is needed so python obeys PYTHONPATH,
+        # The alternative is to modify sys.path directly but we rely
+        # on PYTHONPATH already for "scrapy list".
+        os.execv('/usr/local/bin/start-crawl', sys.argv)
+    elif len(sys.argv) > 1:
+        os.execv(sys.argv[1], sys.argv[1:])
+    else:
+        os.execv('/bin/bash', ['bash'])
+
+
+if __name__ == '__main__':
+    sys.exit(main())

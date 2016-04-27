@@ -1,0 +1,11 @@
+Scrapy==1.1.0rc3
+scrapinghub-entrypoint-scrapy
+loginform
+page_finder
+scrapy-splash
+scrapy-crawlera
+scrapy-dotpersistence
+scrapy-pagestorage
+-e git+https://github.com/scrapy/scrapely@39e7d2c7#egg=scrapely
+-e git+https://github.com/scrapinghub/dateparser@1223377#egg=dateparser
+-e git+https://github.com/scrapinghub/portia@401cba9#egg=slybot==dev&subdirectory=slybot
