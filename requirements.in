@@ -2,6 +2,7 @@ Scrapy==1.1.0rc3
 scrapinghub-entrypoint-scrapy
 loginform
 page_finder
+scrapylib
 scrapy-splash
 scrapy-crawlera
 scrapy-dotpersistence
