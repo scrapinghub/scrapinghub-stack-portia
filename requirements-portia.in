@@ -1,0 +1,7 @@
+Scrapy==1.1.0rc3
+-e git+https://github.com/scrapinghub/portia@401cba9#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/dateparser@1223377#egg=dateparser
+-e git+https://github.com/scrapy/scrapely@39e7d2c7#egg=scrapely
+-e git+https://github.com/scrapy/loginform@0a9d570#egg=loginform
+-e git+https://github.com/scrapinghub/page_finder@f05f8cd#egg=page_finder
+-e git+https://github.com/scrapy-plugins/scrapy-splash@95f0079#egg=scrapy-splash
