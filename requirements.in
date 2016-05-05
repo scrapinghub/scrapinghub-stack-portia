@@ -1,4 +1,4 @@
-Scrapy==1.1.0rc3
+Scrapy==1.1.0rc4
 scrapinghub-entrypoint-scrapy
 loginform
 page_finder
