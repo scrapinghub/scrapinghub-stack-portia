@@ -11,6 +11,6 @@ scrapy-pagestorage
 Pillow
 
 # Portia deps
--e git+https://github.com/scrapy/scrapely@39e7d2c7#egg=scrapely
+-e git+https://github.com/scrapy/scrapely@b88b49c#egg=scrapely
 -e git+https://github.com/scrapinghub/dateparser@1223377#egg=dateparser
--e git+https://github.com/scrapinghub/portia@401cba9#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/portia@5f623e8#egg=slybot==dev&subdirectory=slybot
