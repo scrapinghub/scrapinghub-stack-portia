@@ -7,6 +7,9 @@ scrapy-splash
 scrapy-crawlera
 scrapy-dotpersistence
 scrapy-pagestorage
+
+# Scrapy S3 storage backend requires boto
+boto
 # Images addon needs Pillow
 Pillow
 
