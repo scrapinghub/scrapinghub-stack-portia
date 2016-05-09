@@ -10,6 +10,8 @@ scrapy-pagestorage
 
 # Scrapy S3 storage backend requires boto
 boto
+# Adding bsddb package for DeltaFetch addon
+bsddb3
 # Images addon needs Pillow
 Pillow
 

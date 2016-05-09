@@ -15,6 +15,7 @@ RUN apt-get update -qq && \
     apt-get install -qy \
         netbase ca-certificates apt-transport-https \
         build-essential locales \
+        libdb5.3-dev \
         libxml2-dev \
         libssl-dev \
         libxslt1-dev \
@@ -26,6 +27,9 @@ RUN apt-get update -qq && \
         ghostscript
 # http://unix.stackexchange.com/questions/195975/cannot-force-remove-directory-in-docker-build
 #        && rm -rf /var/lib/apt/lists
+
+# Setting environment for bsddb3 install (deltafetch addon)
+ENV BERKELEYDB_DIR=/usr
 
 # Custom entrypoint in json format passed via environment
 ENV ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
