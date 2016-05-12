@@ -28,6 +28,10 @@ RUN apt-get update -qq && \
 # http://unix.stackexchange.com/questions/195975/cannot-force-remove-directory-in-docker-build
 #        && rm -rf /var/lib/apt/lists
 
+# adding custom locales to provide backward support with scrapy cloud 1.0
+COPY locales /usr/local/share/
+RUN cat /usr/local/share/locales >> /etc/locale.gen && locale-gen
+
 # Setting environment for bsddb3 install (deltafetch addon)
 ENV BERKELEYDB_DIR=/usr
 
