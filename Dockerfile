@@ -29,8 +29,8 @@ RUN apt-get update -qq && \
 #        && rm -rf /var/lib/apt/lists
 
 # adding custom locales to provide backward support with scrapy cloud 1.0
-COPY locales /usr/local/share/
-RUN cat /usr/local/share/locales >> /etc/locale.gen && locale-gen
+COPY locales /etc/locale.gen
+RUN locale-gen
 
 # Setting environment for bsddb3 install (deltafetch addon)
 ENV BERKELEYDB_DIR=/usr
