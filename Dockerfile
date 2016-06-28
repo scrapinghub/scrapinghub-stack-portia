@@ -36,7 +36,10 @@ RUN locale-gen
 ENV BERKELEYDB_DIR=/usr
 
 # Custom entrypoint in json format passed via environment
+ENV SHUB_ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
+# Backward compatibility while migration to SHUB namespace
 ENV ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
+
 COPY portia-entrypoint /usr/local/sbin/
 
 COPY eggbased-entrypoint /usr/local/sbin/
