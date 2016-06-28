@@ -83,9 +83,17 @@ def update_environment_for_portia():
     return env
 
 
+def _print_flush(s):
+    """Debug helper to track entrypoints execution"""
+    print("portia-entrypoint: " + s)
+    sys.stdout.flush()
+
+
 def main():
+    _print_flush("entered")
     prepare_portia_bundle()
     env = update_environment_for_portia()
+    _print_flush("exec env: %s" % env)
     if len(sys.argv) > 1:
         os.execvpe(sys.argv[1], sys.argv[1:], env)
     else:
