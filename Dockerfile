@@ -40,11 +40,11 @@ ENV SHUB_ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
 # Backward compatibility while migration to SHUB namespace
 ENV ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
 
+COPY requirements.txt /requirements-portia.txt
+RUN pip install --no-cache-dir -r requirements-portia.txt
+
 COPY portia-entrypoint /usr/local/sbin/
 
 COPY eggbased-entrypoint /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/eggbased-entrypoint && \
     ln -s /usr/local/sbin/eggbased-entrypoint /usr/local/sbin/start-crawl
-
-COPY requirements.txt /requirements-portia.txt
-RUN pip install --no-cache-dir -r requirements-portia.txt
