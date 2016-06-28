@@ -61,12 +61,20 @@ def unpack_egg(eggpath):
     return newpath
 
 
+def _print_flush(s):
+    """Debug helper to track entrypoints execution"""
+    print('eggbased-entrypoint: ' + s)
+    sys.stdout.flush()
+
+
 def main():
+    _print_flush("entered")
     os.environ.update(DEFAULT_ENV)
     eggs_env = load_eggs(DEFAULT_EGGS_PATH, DEFAULT_MAIN_EGG_NAME)
     os.environ.update(eggs_env)
 
     cmd = os.path.basename(sys.argv[0])
+    _print_flush("exec env: %s" % os.environ)
     if cmd == 'scrapy-list':
         os.execvp('scrapy', ['scrapy', 'list'])
     elif cmd == 'start-crawl':
