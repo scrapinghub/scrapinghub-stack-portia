@@ -41,7 +41,7 @@ regex==2016.4.25
 requests==2.10.0          # via hubstorage
 retrying==1.3.3           # via hubstorage
 s3cmd==1.6.1              # via scrapy-dotpersistence
-scrapinghub-entrypoint-scrapy==0.8.2
+scrapinghub-entrypoint-scrapy==0.8.4
 scrapy-crawlera==1.1.0
 scrapy-dotpersistence==0.2.2
 scrapy-pagestorage==0.1.0
