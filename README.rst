@@ -10,7 +10,7 @@ Versioning
 Versioning is done in the following manner:
 
 - latest version of the stack marked with `latest`
-- each published version of the stack is marked with `slybot version>-<release date>` tag
+- each published version of the stack is marked with `<slybot version>-<release date>` tag
 - for example, `0.13-20160427` refers to a stack released at day April 27th that
 ships `slybot` python package `0.13`.
 
@@ -36,7 +36,11 @@ When you're going to release a new version of the stack, you should:
     git tag -f 0.13
     git tag 0.13-20160727
 
-3. Push tags to the repo::
+3. Push the changes and the tags to the repo::
+
+    git push -f origin master <tag1> <tag2> 
+
+  Example::
 
     git push -f origin master 0.13 0.13-20160727
 
