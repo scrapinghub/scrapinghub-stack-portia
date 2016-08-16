@@ -20,7 +20,7 @@ idna==2.1                 # via cryptography
 ipaddress==1.0.16         # via cryptography
 jdatetime==1.8.1
 jsonschema==2.5.1
-loginform==1.1.1
+loginform==1.2.0
 lxml==3.6.0               # via loginform, parsel, scrapy
 numpy==1.11.0             # via page-finder
 page-finder==0.1.2
