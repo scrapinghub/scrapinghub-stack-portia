@@ -7,12 +7,13 @@ import requests
 from retrying import retry
 from itertools import count
 from urlparse import urljoin
+from urllib import urlencode
 from cStringIO import StringIO
 from sh_scrapy.env import decode_uri
 
 BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
-BUNDLE_URL = 'api/projects/{project}/download/{spider}/'
+BUNDLE_URL = '/api/projects/{project}/download/{spider}/'
 
 DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.Timeout,
@@ -23,12 +24,15 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
 
 def prepare_portia_bundle():
     """ Download Portia bundle to project directory """
-    portia_url, jobauth, spider_id = extract_job_data()
+    portia_url, jobauth, spider_id, version, branch = extract_job_data()
     jobkey = os.environ['SHUB_JOBKEY']
     project_id = jobkey.split('/')[0]
 
     bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
     bundle_full_url = urljoin(portia_url, bundle_url).strip('/')
+    args = {k: v for k, v in [('version', version), ('branch', branch)] if v}
+    if args:
+        bundle_full_url = '%s?%s' % (bundle_full_url, urlencode(args))
     bundle_data = download_portia_bundle(bundle_full_url, jobkey, jobauth)
 
     with open(BUNDLE_PATH, 'wb') as outfile:
@@ -38,7 +42,8 @@ def prepare_portia_bundle():
 def extract_job_data():
     """Extract Portia-related data from JOB_DATA env variable."""
     job_data = decode_uri(envvar='JOB_DATA')
-    return job_data['portia_url'], job_data['auth'], job_data['spider']
+    keys = ('portia_url', 'auth', 'spider', 'version', 'branch')
+    return [job_data.get(k, None) for k in keys]
 
 
 def _retry_on_requests_error(exception):
