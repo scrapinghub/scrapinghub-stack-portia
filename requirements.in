@@ -1,5 +1,4 @@
 Scrapy==1.1.0rc4
-scrapinghub-entrypoint-scrapy
 loginform>=1.2.0
 page_finder
 scrapylib
@@ -24,6 +23,9 @@ slackclient
 python-slugify
 # Images addon needs Pillow
 Pillow
+
+# pinned for custom UA for hubstorage client
+scrapinghub-entrypoint-scrapy>=0.8.8
 
 # Portia deps
 -e git+https://github.com/scrapy/scrapely@b88b49c#egg=scrapely
