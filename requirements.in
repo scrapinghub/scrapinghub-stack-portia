@@ -18,6 +18,7 @@ monkeylearn
 six
 Jinja2
 jsonschema
+premailer==2.9.2
 schematics==1.0.4
 slackclient
 python-slugify
