@@ -85,6 +85,7 @@ def update_environment_for_portia():
     env = os.environ.copy()
     env['PROJECT_ZIPFILE'] = BUNDLE_PATH
     env['PROJECT_DIR'] = BUNDLE_DIR
+    env['SHUB_HS_USER_AGENT'] = 'portia-stack'
     return env
 
 
