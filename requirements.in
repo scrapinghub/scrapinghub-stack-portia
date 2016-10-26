@@ -30,4 +30,4 @@ scrapinghub-entrypoint-scrapy>=0.8.8
 # Portia deps
 -e git+https://github.com/scrapy/scrapely@b88b49c#egg=scrapely
 -e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
--e git+https://github.com/scrapinghub/portia@df6d858#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/portia@0526b93#egg=slybot==dev&subdirectory=slybot
