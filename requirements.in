@@ -25,7 +25,7 @@ python-slugify
 Pillow
 
 # pinned for custom UA for hubstorage client
-scrapinghub-entrypoint-scrapy>=0.8.8
+scrapinghub-entrypoint-scrapy>=0.8.9
 
 # Portia deps
 -e git+https://github.com/scrapy/scrapely@b88b49c#egg=scrapely
