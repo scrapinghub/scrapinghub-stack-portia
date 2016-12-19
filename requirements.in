@@ -1,4 +1,4 @@
-Scrapy==1.1.0rc4
+Scrapy==1.2.2
 loginform>=1.2.0
 page_finder
 scrapylib
