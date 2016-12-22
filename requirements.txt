@@ -5,10 +5,11 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 -e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
--e git+https://github.com/scrapy/scrapely@b88b49c#egg=scrapely
--e git+https://github.com/scrapinghub/portia@1b920f1#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapy/scrapely@c3c82f3#egg=scrapely
+-e git+https://github.com/scrapinghub/portia@e6bc87c#egg=slybot==dev&subdirectory=slybot
 attrs==15.2.0             # via service-identity
 awscli==1.11.23           # via scrapy-dotpersistence
+backports.ssl-match-hostname==3.5.0.1  # via websocket-client
 boto==2.39.0
 botocore==1.4.80          # via awscli, s3transfer
 bsddb3==6.1.1
@@ -34,7 +35,7 @@ markupsafe==0.23          # via jinja2
 mock==1.0.1               # via schematics
 monkeylearn==0.3.5
 numpy==1.11.0             # via page-finder
-page-finder==0.1.7
+page-finder==0.1.8
 parsel==1.0.2             # via scrapy
 pillow==3.2.0
 premailer==2.9.2
@@ -60,7 +61,7 @@ scrapy-crawlera==1.1.0
 scrapy-dotpersistence==0.3.0
 scrapy-pagestorage==0.1.0
 scrapy-splash==0.6.1
-Scrapy==1.2.2             # via scrapinghub-entrypoint-scrapy, scrapy-dotpersistence, scrapy-pagestorage, scrapylib
+scrapy==1.2.2
 scrapyjs==0.2
 scrapylib==1.7.0
 service-identity==16.0.0  # via scrapy
