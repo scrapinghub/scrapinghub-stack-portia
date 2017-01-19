@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
 -e git+https://github.com/scrapy/scrapely@c3c82f3#egg=scrapely
--e git+https://github.com/scrapinghub/portia@efa2654#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/portia@69f9501#egg=slybot==dev&subdirectory=slybot
 attrs==15.2.0             # via service-identity
 awscli==1.11.23           # via scrapy-dotpersistence
 backports.ssl-match-hostname==3.5.0.1  # via websocket-client
@@ -35,7 +35,7 @@ markupsafe==0.23          # via jinja2
 mock==1.0.1               # via schematics
 monkeylearn==0.3.5
 numpy==1.11.0             # via page-finder
-page-finder==0.1.8
+page-finder==0.1.9
 parsel==1.0.2             # via scrapy
 pillow==3.2.0
 premailer==2.9.2
