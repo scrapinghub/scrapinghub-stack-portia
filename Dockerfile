@@ -48,7 +48,3 @@ COPY addons_eggs /app/addons_eggs
 RUN chown nobody:nogroup -R /app/addons_eggs
 
 COPY portia-entrypoint /usr/local/sbin/
-
-COPY eggbased-entrypoint /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/eggbased-entrypoint && \
-    ln -s /usr/local/sbin/eggbased-entrypoint /usr/local/sbin/start-crawl
