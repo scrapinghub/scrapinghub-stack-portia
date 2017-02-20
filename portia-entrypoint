@@ -1,15 +1,24 @@
 #!/usr/bin/env python
 import os
 import sys
-import json
+import glob
 import shutil
 import requests
+
 from retrying import retry
 from itertools import count
 from urlparse import urljoin
 from urllib import urlencode
 from cStringIO import StringIO
+from zipfile import ZipFile, BadZipfile
+
 from sh_scrapy.env import decode_uri
+
+
+GID = 65534
+EGGS_BUNDLE_PATH_GLOB = '/mnt/mesos/sandbox/bundle.zip*'
+EGGS_BUNDLE_UNPACK_DIR = '/app'
+EGGS_BUNDLE_UNPACK_GLOB = EGGS_BUNDLE_UNPACK_DIR + '/*.egg'
 
 BUNDLE_DIR = '/scrapy'
 BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
@@ -20,6 +29,26 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.ConnectionError,
     requests.exceptions.HTTPError,
 )
+
+
+def unpack_eggs_bundle_if_exists():
+    bundle = glob.glob(EGGS_BUNDLE_PATH_GLOB)
+    if not bundle:
+        return
+    # skip extraction if already unpacked by kumo-entrypoint
+    if glob.glob(EGGS_BUNDLE_UNPACK_GLOB):
+        return
+    try:
+        zf = ZipFile(bundle[0])
+        zf.extractall(EGGS_BUNDLE_UNPACK_DIR)
+    except BadZipfile as exc:
+        _print_flush("Bad zipfile %s" % exc)
+    else:
+        uid = int(os.environ.get('SHUB_JOB_UID', 65534))
+        for eggname in os.listdir(EGGS_BUNDLE_UNPACK_DIR):
+            eggpath = os.path.join(EGGS_BUNDLE_UNPACK_DIR, eggname)
+            if os.path.isfile(eggpath) and eggname.endswith('.egg'):
+                os.chown(eggpath, uid, GID)
 
 
 def prepare_portia_bundle():
@@ -97,6 +126,7 @@ def _print_flush(s):
 
 def main():
     _print_flush("entered")
+    unpack_eggs_bundle_if_exists()
     prepare_portia_bundle()
     env = update_environment_for_portia()
     _print_flush("exec env: %s" % env)
