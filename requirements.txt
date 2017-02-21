@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
 -e git+https://github.com/scrapy/scrapely@c3c82f3#egg=scrapely
--e git+https://github.com/scrapinghub/portia@8204649#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/portia@dc8dd4e#egg=slybot==dev&subdirectory=slybot
 appdirs==1.4.0            # via setuptools
 attrs==15.2.0             # via service-identity
 awscli==1.11.23           # via scrapy-dotpersistence
