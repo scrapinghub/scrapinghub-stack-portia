@@ -26,6 +26,7 @@ DASH_BUNDLE_URL = 'eggs/bundle.zip?project={project}'
 DASH_PACKED_EGGS_PATH = '/tmp/packed-eggs/'
 DASH_UNPACKED_EGGS_PATH = '/tmp/unpacked-eggs/'
 DASH_BUNDLE_UNPACK_GLOB = DASH_PACKED_EGGS_PATH + '/*.egg'
+DASH_ADDONS_EGGS_PATH = '/app/addons_eggs'
 
 PORTIA_BUNDLE_PATH = '/scrapy/project-slybot.zip'
 PORTIA_BUNDLE_URL = '/api/projects/{project}/download/{spider}/'
@@ -127,13 +128,14 @@ def unpack_eggs_bundle():
                 os.chown(eggpath, uid, GID)
 
 
-def load_dash_eggs(eggs_path):
+def load_dash_eggs(eggs_paths):
     pypath = os.environ.get('PYTHONPATH', '')
-    for egg_path in glob.glob("%s/*.egg" % eggs_path):
-        if is_zipunsafe(egg_path):
-            egg_path = unpack_egg(egg_path)
-        sys.path.insert(0, egg_path)
-        pypath = '{}:{}'.format(egg_path, pypath)
+    for search_path in eggs_paths:
+        for egg_path in glob.glob("%s/*.egg" % search_path):
+            if is_zipunsafe(egg_path):
+                egg_path = unpack_egg(egg_path)
+            sys.path.insert(0, egg_path)
+            pypath = '{}:{}'.format(egg_path, pypath)
     return {'PYTHONPATH': pypath}
 
 
@@ -143,18 +145,26 @@ def is_zipunsafe(eggpath):
     return dist.has_metadata('not-zip-safe')
 
 
-def unpack_egg(eggpath):
-    newpath = os.path.join(DASH_UNPACKED_EGGS_PATH, os.path.basename(eggpath))
-    unpack_archive(eggpath, newpath)
-    os.remove(eggpath)
-    return newpath
+def unpack_egg(egg_path):
+    destination_parts = [os.path.basename(egg_path)]
+    is_addon_egg = os.path.dirname(egg_path) == DASH_ADDONS_EGGS_PATH
+    if is_addon_egg:
+        destination_parts.insert(0, 'addons')
+    destination = os.path.join(DASH_UNPACKED_EGGS_PATH, *destination_parts)
+    unpack_archive(egg_path, destination)
+    # we don't have permissions to drop files from addons folder
+    if not is_addon_egg:
+        os.remove(egg_path)
+    return destination
 
 
 def update_environment_for_portia():
     """Modify current environment for Portia."""
     env = os.environ.copy()
     env['TERM'] = 'xterm'
-    eggs_environment = load_dash_eggs(DASH_PACKED_EGGS_PATH)
+    # load addons_eggs in the end to give them precedence
+    eggs_environment = load_dash_eggs([DASH_PACKED_EGGS_PATH,
+                                       DASH_ADDONS_EGGS_PATH])
     env.update(eggs_environment)
     env['PROJECT_ZIPFILE'] = PORTIA_BUNDLE_PATH
     env['PROJECT_DIR'] = os.path.dirname(PORTIA_BUNDLE_PATH)
