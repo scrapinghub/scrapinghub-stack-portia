@@ -185,10 +185,9 @@ def main():
     _print_flush("exec env: %s" % env)
     cmd = os.path.basename(sys.argv[0])
     if cmd == 'start-crawl':
-        # Call sh_scrapy's start-crawl
+        # Call scrapinghub-entrypoint-scrapy's start-crawl.
         # Replacing the process is needed so python obeys PYTHONPATH,
-        # The alternative is to modify sys.path directly but we rely
-        # on PYTHONPATH already for "scrapy list".
+        # alternative is to modify sys.path directly.
         os.execve('/usr/local/bin/start-crawl', [cmd], env)
     elif len(sys.argv) > 1:
         os.execve(sys.argv[1], sys.argv[1:], env)

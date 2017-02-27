@@ -35,11 +35,6 @@ RUN locale-gen
 # Setting environment for bsddb3 install (deltafetch addon)
 ENV BERKELEYDB_DIR=/usr
 
-# Custom entrypoint in json format passed via environment
-ENV SHUB_ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
-# Backward compatibility while migration to SHUB namespace
-ENV ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
-
 COPY requirements.txt /requirements-portia.txt
 RUN pip install --no-cache-dir -r requirements-portia.txt
 
