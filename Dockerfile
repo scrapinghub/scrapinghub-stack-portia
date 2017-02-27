@@ -47,4 +47,8 @@ RUN mkdir /app
 COPY addons_eggs /app/addons_eggs
 RUN chown nobody:nogroup -R /app/addons_eggs
 
+WORKDIR /scrapy
+
 COPY portia-entrypoint /usr/local/sbin/
+RUN chmod +x /usr/local/sbin/portia-entrypoint && \
+    ln -s /usr/local/sbin/portia-entrypoint /usr/local/sbin/start-crawl
