@@ -35,11 +35,6 @@ RUN locale-gen
 # Setting environment for bsddb3 install (deltafetch addon)
 ENV BERKELEYDB_DIR=/usr
 
-# Custom entrypoint in json format passed via environment
-ENV SHUB_ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
-# Backward compatibility while migration to SHUB namespace
-ENV ENTRYPOINT='["/usr/local/sbin/portia-entrypoint"]'
-
 COPY requirements.txt /requirements-portia.txt
 RUN pip install --no-cache-dir -r requirements-portia.txt
 
@@ -47,8 +42,8 @@ RUN mkdir /app
 COPY addons_eggs /app/addons_eggs
 RUN chown nobody:nogroup -R /app/addons_eggs
 
-COPY portia-entrypoint /usr/local/sbin/
+WORKDIR /scrapy
 
-COPY eggbased-entrypoint /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/eggbased-entrypoint && \
-    ln -s /usr/local/sbin/eggbased-entrypoint /usr/local/sbin/start-crawl
+COPY portia-entrypoint /usr/local/sbin/
+RUN chmod +x /usr/local/sbin/portia-entrypoint && \
+    ln -s /usr/local/sbin/portia-entrypoint /usr/local/sbin/start-crawl

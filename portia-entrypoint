@@ -1,19 +1,35 @@
 #!/usr/bin/env python
 import os
 import sys
-import json
+import glob
 import shutil
-import requests
-from retrying import retry
+import zipimport
+import pkg_resources
+
 from itertools import count
 from urlparse import urljoin
 from urllib import urlencode
 from cStringIO import StringIO
+from zipfile import ZipFile, BadZipfile
+from setuptools.archive_util import unpack_archive
+
+import requests
+from retrying import retry
 from sh_scrapy.env import decode_uri
 
-BUNDLE_DIR = '/scrapy'
-BUNDLE_PATH = os.path.join(BUNDLE_DIR, 'project-slybot.zip')
-BUNDLE_URL = '/api/projects/{project}/download/{spider}/'
+GID = 65534
+
+DEFAULT_DASH_URL = "https://app.scrapinghub.com/api/"
+DASH_BUNDLE_PATH = '/tmp/eggs-bundle.zip'
+DASH_BUNDLE_URL = 'eggs/bundle.zip?project={project}'
+
+DASH_PACKED_EGGS_PATH = '/tmp/packed-eggs/'
+DASH_UNPACKED_EGGS_PATH = '/tmp/unpacked-eggs/'
+DASH_BUNDLE_UNPACK_GLOB = DASH_PACKED_EGGS_PATH + '/*.egg'
+DASH_ADDONS_EGGS_PATH = '/app/addons_eggs'
+
+PORTIA_BUNDLE_PATH = '/scrapy/project-slybot.zip'
+PORTIA_BUNDLE_URL = '/api/projects/{project}/download/{spider}/'
 
 DOWNLOAD_RETRY_EXCEPTIONS = (
     requests.exceptions.Timeout,
@@ -22,27 +38,42 @@ DOWNLOAD_RETRY_EXCEPTIONS = (
 )
 
 
-def prepare_portia_bundle():
-    """ Download Portia bundle to project directory """
-    portia_url, jobauth, spider_id, version, branch = extract_job_data()
+def prepare_bundles():
+    """ Download eggs bundle and Portia bundle."""
+
     jobkey = os.environ['SHUB_JOBKEY']
     project_id = jobkey.split('/')[0]
+    job_data = extract_job_data()
+    api_url = job_data[0] or DEFAULT_DASH_URL
+    portia_url, jobauth, spider_id, version, branch = job_data[1:]
 
-    bundle_url = BUNDLE_URL.format(project=project_id, spider=spider_id)
+    # prepare and download eggs bundle
+    dash_bundle_url = DASH_BUNDLE_URL.format(project=project_id)
+    dash_bundle_full_url = urljoin(api_url, dash_bundle_url).strip('/')
+    dash_bundle_data = download_bundle(dash_bundle_full_url, jobkey, jobauth)
+    with open(DASH_BUNDLE_PATH, 'wb') as outfile:
+        shutil.copyfileobj(StringIO(dash_bundle_data), outfile)
+    _print_flush("eggs bundle downloaded")
+    unpack_eggs_bundle()
+    _print_flush("eggs bundle unpacked")
+
+    # prepare and download main portia bundle
+    bundle_url = PORTIA_BUNDLE_URL.format(project=project_id, spider=spider_id)
     bundle_full_url = urljoin(portia_url, bundle_url).strip('/')
     args = {k: v for k, v in [('version', version), ('branch', branch)] if v}
     if args:
         bundle_full_url = '%s?%s' % (bundle_full_url, urlencode(args))
-    bundle_data = download_portia_bundle(bundle_full_url, jobkey, jobauth)
+    bundle_data = download_bundle(bundle_full_url, jobkey, jobauth)
 
-    with open(BUNDLE_PATH, 'wb') as outfile:
+    with open(PORTIA_BUNDLE_PATH, 'wb') as outfile:
         shutil.copyfileobj(StringIO(bundle_data), outfile)
+    _print_flush("portia bundle downloaded")
 
 
 def extract_job_data():
-    """Extract Portia-related data from JOB_DATA env variable."""
+    """Extract job related data from JOB_DATA env variable."""
     job_data = decode_uri(envvar='JOB_DATA')
-    keys = ('portia_url', 'auth', 'spider', 'version', 'branch')
+    keys = ('api_url', 'portia_url', 'auth', 'spider', 'version', 'branch')
     return [job_data.get(k, None) for k in keys]
 
 
@@ -60,14 +91,15 @@ def backoffretry_delays(maxwait=3600, maxdelay=600, mindelay=0):
         delays.append(s)
     return delays
 
+
 delays = backoffretry_delays(maxwait=1200, mindelay=60)
 
 
 @retry(retry_on_exception=_retry_on_requests_error,
        wait_func=lambda n, _: delays[n],
        stop_func=lambda n, _: len(delays) <= n + 1)
-def download_portia_bundle(bundle_url, jobkey, jobauth):
-    """Download Portia bundle from API using Bearer auth."""
+def download_bundle(bundle_url, jobkey, jobauth):
+    """Download a bundle file using Bearer auth."""
     headers = {"Authorization": "Bearer {}".format(jobauth),
                "X-Job-Id": jobkey}
     bundle_req = requests.get(
@@ -80,11 +112,62 @@ def download_portia_bundle(bundle_url, jobkey, jobauth):
     return bundle_req.content
 
 
+def unpack_eggs_bundle():
+    if not os.path.isdir(DASH_PACKED_EGGS_PATH):
+        os.mkdir(DASH_PACKED_EGGS_PATH)
+    try:
+        zf = ZipFile(DASH_BUNDLE_PATH)
+        zf.extractall(DASH_PACKED_EGGS_PATH)
+    except BadZipfile as exc:
+        _print_flush("Bad zipfile %s" % exc)
+    else:
+        uid = int(os.environ.get('SHUB_JOB_UID', 65534))
+        for eggname in os.listdir(DASH_PACKED_EGGS_PATH):
+            eggpath = os.path.join(DASH_PACKED_EGGS_PATH, eggname)
+            if os.path.isfile(eggpath) and eggname.endswith('.egg'):
+                os.chown(eggpath, uid, GID)
+
+
+def load_dash_eggs(eggs_paths):
+    pypath = os.environ.get('PYTHONPATH', '')
+    for search_path in eggs_paths:
+        for egg_path in glob.glob("%s/*.egg" % search_path):
+            if is_zipunsafe(egg_path):
+                egg_path = unpack_egg(egg_path)
+            sys.path.insert(0, egg_path)
+            pypath = '{}:{}'.format(egg_path, pypath)
+    return {'PYTHONPATH': pypath}
+
+
+def is_zipunsafe(eggpath):
+    """ Get an egg' zip unsafe flag """
+    dist = pkg_resources.EggMetadata(zipimport.zipimporter(eggpath))
+    return dist.has_metadata('not-zip-safe')
+
+
+def unpack_egg(egg_path):
+    destination_parts = [os.path.basename(egg_path)]
+    is_addon_egg = os.path.dirname(egg_path) == DASH_ADDONS_EGGS_PATH
+    if is_addon_egg:
+        destination_parts.insert(0, 'addons')
+    destination = os.path.join(DASH_UNPACKED_EGGS_PATH, *destination_parts)
+    unpack_archive(egg_path, destination)
+    # we don't have permissions to drop files from addons folder
+    if not is_addon_egg:
+        os.remove(egg_path)
+    return destination
+
+
 def update_environment_for_portia():
     """Modify current environment for Portia."""
     env = os.environ.copy()
-    env['PROJECT_ZIPFILE'] = BUNDLE_PATH
-    env['PROJECT_DIR'] = BUNDLE_DIR
+    env['TERM'] = 'xterm'
+    # load addons_eggs in the end to give them precedence
+    eggs_environment = load_dash_eggs([DASH_PACKED_EGGS_PATH,
+                                       DASH_ADDONS_EGGS_PATH])
+    env.update(eggs_environment)
+    env['PROJECT_ZIPFILE'] = PORTIA_BUNDLE_PATH
+    env['PROJECT_DIR'] = os.path.dirname(PORTIA_BUNDLE_PATH)
     env['SHUB_HS_USER_AGENT'] = 'portia-stack'
     return env
 
@@ -97,13 +180,19 @@ def _print_flush(s):
 
 def main():
     _print_flush("entered")
-    prepare_portia_bundle()
+    prepare_bundles()
     env = update_environment_for_portia()
     _print_flush("exec env: %s" % env)
-    if len(sys.argv) > 1:
-        os.execvpe(sys.argv[1], sys.argv[1:], env)
+    cmd = os.path.basename(sys.argv[0])
+    if cmd == 'start-crawl':
+        # Call scrapinghub-entrypoint-scrapy's start-crawl.
+        # Replacing the process is needed so python obeys PYTHONPATH,
+        # alternative is to modify sys.path directly.
+        os.execve('/usr/local/bin/start-crawl', [cmd], env)
+    elif len(sys.argv) > 1:
+        os.execve(sys.argv[1], sys.argv[1:], env)
     else:
-        os.execvpe('/bin/bash', ['bash'], env)
+        os.execve('/bin/bash', ['bash'], env)
 
 
 if __name__ == '__main__':
