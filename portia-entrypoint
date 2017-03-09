@@ -17,7 +17,6 @@ import requests
 from retrying import retry
 from sh_scrapy.env import decode_uri
 
-GID = 65534
 
 DEFAULT_DASH_URL = "https://app.scrapinghub.com/api/"
 DASH_BUNDLE_PATH = '/tmp/eggs-bundle.zip'
@@ -120,12 +119,6 @@ def unpack_eggs_bundle():
         zf.extractall(DASH_PACKED_EGGS_PATH)
     except BadZipfile as exc:
         _print_flush("Bad zipfile %s" % exc)
-    else:
-        uid = int(os.environ.get('SHUB_JOB_UID', 65534))
-        for eggname in os.listdir(DASH_PACKED_EGGS_PATH):
-            eggpath = os.path.join(DASH_PACKED_EGGS_PATH, eggname)
-            if os.path.isfile(eggpath) and eggname.endswith('.egg'):
-                os.chown(eggpath, uid, GID)
 
 
 def load_dash_eggs(eggs_paths):
