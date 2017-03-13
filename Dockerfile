@@ -32,6 +32,8 @@ RUN apt-get update -qq && \
 COPY locales /etc/locale.gen
 RUN locale-gen
 
+# Proper path to locate portia-entrypoint by its alias
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Setting environment for bsddb3 install (deltafetch addon)
 ENV BERKELEYDB_DIR=/usr
 
