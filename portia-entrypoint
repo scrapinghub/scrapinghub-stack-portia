@@ -175,7 +175,6 @@ def main():
     _print_flush("entered")
     prepare_bundles()
     env = update_environment_for_portia()
-    _print_flush("exec env: %s" % env)
     cmd = os.path.basename(sys.argv[0])
     if cmd == 'start-crawl':
         # Call scrapinghub-entrypoint-scrapy's start-crawl.
