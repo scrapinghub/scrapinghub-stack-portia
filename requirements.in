@@ -4,6 +4,7 @@ page_finder
 scrapylib
 scrapy-splash
 scrapy-crawlera
+scrapy-deltafetch
 scrapy-dotpersistence
 scrapy-pagestorage
 
