@@ -52,9 +52,7 @@ def prepare_bundles():
     dash_bundle_data = download_bundle(dash_bundle_full_url, jobkey, jobauth)
     with open(DASH_BUNDLE_PATH, 'wb') as outfile:
         shutil.copyfileobj(StringIO(dash_bundle_data), outfile)
-    _print_flush("eggs bundle downloaded")
     unpack_eggs_bundle()
-    _print_flush("eggs bundle unpacked")
 
     # prepare and download main portia bundle
     bundle_url = PORTIA_BUNDLE_URL.format(project=project_id, spider=spider_id)
@@ -66,7 +64,6 @@ def prepare_bundles():
 
     with open(PORTIA_BUNDLE_PATH, 'wb') as outfile:
         shutil.copyfileobj(StringIO(bundle_data), outfile)
-    _print_flush("portia bundle downloaded")
 
 
 def extract_job_data():
@@ -172,7 +169,6 @@ def _print_flush(s):
 
 
 def main():
-    _print_flush("entered")
     prepare_bundles()
     env = update_environment_for_portia()
     cmd = os.path.basename(sys.argv[0])
