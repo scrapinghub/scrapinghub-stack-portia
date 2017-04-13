@@ -5,11 +5,12 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 -e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
--e git+https://github.com/scrapy/scrapely@c3c82f3#egg=scrapely
--e git+https://github.com/scrapinghub/portia@3f1a56d#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapy/scrapely@7f424fa#egg=scrapely
+-e git+https://github.com/scrapinghub/portia@434102d#egg=slybot==dev&subdirectory=slybot
 appdirs==1.4.0            # via setuptools
 attrs==15.2.0             # via service-identity
 awscli==1.11.23           # via scrapy-dotpersistence
+backports.ssl-match-hostname==3.5.0.1  # via websocket-client
 boto==2.39.0
 botocore==1.4.80          # via awscli, s3transfer
 bsddb3==6.1.1
@@ -77,5 +78,6 @@ w3lib==1.16.0             # via parsel, scrapy
 websocket-client==0.37.0  # via slackclient
 zope.interface==4.1.3     # via twisted
 
-# The following packages are considered to be unsafe in a requirements file:
+# The following packages are commented out because they are
+# considered to be unsafe in a requirements file:
 # setuptools                # via cryptography, zope.interface
