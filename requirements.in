@@ -30,6 +30,6 @@ Pillow
 scrapinghub-entrypoint-scrapy>=0.8.9
 
 # Portia deps
--e git+https://github.com/scrapy/scrapely@7f424fa#egg=scrapely
--e git+https://github.com/scrapinghub/dateparser@9b6597d#egg=dateparser
--e git+https://github.com/scrapinghub/portia@dd75568#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapy/scrapely@ff8af77#egg=scrapely
+-e git+https://github.com/scrapinghub/dateparser@2726c47#egg=dateparser
+-e git+https://github.com/scrapinghub/portia@2a2b598#egg=slybot==dev&subdirectory=slybot
