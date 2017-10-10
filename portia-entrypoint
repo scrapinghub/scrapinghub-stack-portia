@@ -84,7 +84,8 @@ def backoffretry_delays(maxwait=3600, maxdelay=600, mindelay=0):
         w += s
         if w > maxwait:
             break
-        delays.append(s)
+        # retrying.retry expects milliseconds from wait_func
+        delays.append(s * 1000)
     return delays
 
 
