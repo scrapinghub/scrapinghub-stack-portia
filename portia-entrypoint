@@ -57,10 +57,27 @@ def prepare_bundles():
     # prepare and download main portia bundle
     bundle_url = PORTIA_BUNDLE_URL.format(project=project_id, spider=spider_id)
     bundle_full_url = urljoin(portia_url, bundle_url).strip('/')
-    args = {k: v for k, v in [('version', version), ('branch', branch)] if v}
-    if args:
-        bundle_full_url = '%s?%s' % (bundle_full_url, urlencode(args))
-    bundle_data = download_bundle(bundle_full_url, jobkey, jobauth)
+    bundle_options = [
+        ('version', version),
+        ('branch', branch),
+        ('branch', 'master')
+    ]
+    for k, v in bundle_options:
+        if not v:
+            continue
+        try:
+            bundle_full_url = '%s?%s' % (bundle_full_url, urlencode({k: v}))
+            bundle_data = download_bundle(bundle_full_url, jobkey, jobauth)
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                continue
+            raise e
+        else:
+            break
+    else:
+        raise ValueError('Could not find valid portia project for: {}'.format(
+            '; '.join(', '.join(o) for o in bundle_options if o[1])
+        ))
 
     with open(PORTIA_BUNDLE_PATH, 'wb') as outfile:
         shutil.copyfileobj(StringIO(bundle_data), outfile)
