@@ -1,4 +1,4 @@
-Scrapy==1.4.0
+scrapy==1.5.0
 loginform>=1.2.0
 page_finder
 scrapylib
@@ -20,16 +20,16 @@ Jinja2
 jsonschema
 premailer==2.9.2
 schematics==1.0.4
-scrapinghub==1.9.0
+scrapinghub==2.0.3
 slackclient
 python-slugify
 # Images addon needs Pillow
-Pillow
+pillow>=5.1
 
 # pinned for custom UA for hubstorage client
 scrapinghub-entrypoint-scrapy>=0.8.9
 
 # Portia deps
 -e git+https://github.com/scrapy/scrapely@ff8af77#egg=scrapely
--e git+https://github.com/scrapinghub/dateparser@2726c47#egg=dateparser
--e git+https://github.com/scrapinghub/portia@4b8a276#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/dateparser@cb23f53#egg=dateparser
+-e git+https://github.com/scrapinghub/portia@09ad116#egg=slybot==dev&subdirectory=slybot
