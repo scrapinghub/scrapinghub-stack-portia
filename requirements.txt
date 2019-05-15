@@ -36,7 +36,7 @@ monkeylearn==0.3.7
 numpy==1.12.1             # via page-finder
 packaging==16.8           # via cryptography
 page-finder==0.1.9
-parsel==1.2.0             # via scrapy
+parsel==1.5.1             # via scrapy
 pillow==5.2.0
 premailer==2.9.2
 pyasn1-modules==0.0.8     # via service-identity
@@ -63,7 +63,7 @@ scrapy-deltafetch==1.2.1
 scrapy-dotpersistence==0.3.0
 scrapy-pagestorage==0.2.0
 scrapy-splash==0.7.2
-scrapy==1.5.0
+scrapy==1.6.0
 scrapylib==1.7.1
 service-identity==16.0.0  # via scrapy
 six==1.10.0
@@ -71,6 +71,6 @@ slackclient==1.0.5
 twisted==17.9.0           # via scrapy
 tzlocal==1.4
 unidecode==0.4.20         # via python-slugify
-w3lib==1.17.0             # via parsel, scrapy
+w3lib==1.20.0             # via parsel, scrapy
 websocket-client==0.40.0  # via slackclient
 zope.interface==4.4.1     # via twisted
