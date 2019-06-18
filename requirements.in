@@ -1,4 +1,4 @@
-scrapy==1.5.0
+scrapy==1.6.0
 loginform>=1.2.0
 page_finder
 scrapylib
@@ -33,3 +33,11 @@ scrapinghub-entrypoint-scrapy>=0.8.9
 -e git+https://github.com/scrapy/scrapely@ff8af77#egg=scrapely
 -e git+https://github.com/scrapinghub/dateparser@cb23f53#egg=dateparser
 -e git+https://github.com/scrapinghub/portia@09ad116#egg=slybot==dev&subdirectory=slybot
+
+# address known vulnerabilities
+awscli>=1.16.179    # fix pyaml dependency
+Twisted>=19.2.1     # CVE-2019-12387
+urllib3>=1.24.2     # CVE-2019-11324
+Jinja2>=2.10.1      # CVE-2019-10906
+requests>=2.20.0    # CVE-2018-18074
+pyyaml>=4.2b1       # CVE-2017-18342
