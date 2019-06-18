@@ -30,9 +30,9 @@ pillow>=5.1
 scrapinghub-entrypoint-scrapy>=0.8.9
 
 # Portia deps
--e git+https://github.com/scrapy/scrapely@ff8af77#egg=scrapely
+-e git+https://github.com/scrapy/scrapely@3fda642#egg=scrapely
 -e git+https://github.com/scrapinghub/dateparser@cb23f53#egg=dateparser
--e git+https://github.com/scrapinghub/portia@09ad116#egg=slybot==dev&subdirectory=slybot
+-e git+https://github.com/scrapinghub/portia@b3b4120#egg=slybot==0.13.3&subdirectory=slybot
 
 # address known vulnerabilities
 awscli>=1.16.179    # fix pyaml dependency
