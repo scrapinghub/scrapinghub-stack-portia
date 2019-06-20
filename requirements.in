@@ -6,7 +6,10 @@ scrapy-splash
 scrapy-crawlera
 scrapy-deltafetch
 scrapy-dotpersistence
+scrapy-magicfields
 scrapy-pagestorage
+scrapy-querycleaner
+scrapy-splitvariants
 
 # Scrapy S3 storage backend requires boto
 boto
